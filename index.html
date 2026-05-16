@@ -159,20 +159,13 @@ body{
   aspect-ratio: 3/4;
   background: linear-gradient(145deg, #7c4dff, #651fff);
   border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #fff;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.4s, box-shadow 0.3s;
   box-shadow: 0 4px 12px rgba(124,77,255,0.25);
-  padding: 6px;
-  text-align: center;
-  word-break: break-word;
   user-select: none;
   position: relative;
+  perspective: 800px;
+  transform-style: preserve-3d;
 }
 .memory-card.flipped{
   transform: rotateY(180deg);
@@ -185,24 +178,30 @@ body{
   cursor: default;
   pointer-events: none;
 }
-.memory-card .card-back{
+.memory-card .card-face{
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  padding: 8px;
+  text-align: center;
+  word-break: break-word;
+  border-radius: 14px;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.memory-card .card-back{
+  background: linear-gradient(145deg, #7c4dff, #651fff);
+  color: #fff;
+  font-size: 2rem;
 }
 .memory-card .card-front{
-  backface-visibility: hidden;
+  background: #fff;
+  color: #333;
+  font-size: 0.8rem;
+  font-weight: 700;
   transform: rotateY(180deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 4px;
 }
 .memory-stats{
   display: flex;
@@ -762,8 +761,8 @@ function renderMemory(){
     div.className = 'memory-card';
     div.dataset.index = i;
     div.innerHTML = `
-      <div class="card-back">❓</div>
-      <div class="card-front">${card.type==='en' ? card.word : card.word}</div>
+      <div class="card-face card-back">❓</div>
+      <div class="card-face card-front">${card.word}</div>
     `;
     div.addEventListener('click',()=>flipCard(i));
     grid.appendChild(div);
