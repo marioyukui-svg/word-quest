@@ -446,6 +446,131 @@ body{
 .btn-retry{background: linear-gradient(135deg, #43e97b, #38f9d7); color: #1b5e20}
 .btn-menu{background: #e0e0e0; color: #555}
 
+/* ===== WORD SUMMARY ===== */
+.word-summary{
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid #f0f0f0;
+  text-align: left;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.word-summary h3{
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.summary-item{
+  display: flex;
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  gap: 8px;
+}
+.summary-item:nth-child(even){background:#f8f8ff}
+.summary-item .en{font-weight:700;color:#7c4dff;min-width:80px}
+.summary-item .zh{color:#333;min-width:60px}
+.summary-item .ex{color:#999;font-size:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.result-box.scrollable{max-height:90vh;overflow-y:auto}
+
+/* ===== WORD BANK ===== */
+.wordbank-overlay{
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 90;
+  align-items: center;
+  justify-content: center;
+}
+.wordbank-overlay.active{display:flex}
+.wordbank-box{
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  max-width: 500px;
+  width: 92%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: popIn 0.3s ease;
+}
+.wordbank-box h2{
+  font-size: 1.3rem;
+  color: #7c4dff;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.wordbank-box .sub{
+  font-size: 0.8rem;
+  color: #999;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.wordbank-search{
+  padding: 10px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  width: 100%;
+}
+.wordbank-search:focus{
+  outline: none;
+  border-color: #7c4dff;
+}
+.wordbank-list{
+  flex:1;
+  overflow-y:auto;
+  min-height:100px;
+}
+.wordbank-empty{
+  text-align: center;
+  color: #bbb;
+  padding: 40px 0;
+  font-size: 0.95rem;
+}
+.wordbank-item{
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+.wordbank-item:nth-child(even){background:#f8f8ff}
+.wordbank-item .tag{
+  background: #7c4dff;
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wordbank-item .wen{font-weight:700;color:#333;min-width:80px}
+.wordbank-item .wzh{color:#666;min-width:50px}
+.wordbank-item .wex{color:#999;font-size:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wordbank-close{
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.wordbank-close:hover{transform:scale(1.02)}
+
 /* ===== CONFETTI ===== */
 .confetti-container{
   position: fixed;
@@ -543,6 +668,7 @@ body{
     <input type="number" id="countInput" value="8" min="4" max="20">
 
     <button class="btn-start" onclick="startGame()">🚀 开始冒险!</button>
+    <button class="btn-start" style="margin-top:10px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:1rem;box-shadow:0 4px 15px rgba(102,126,234,0.4)" onclick="openWordBank()">📚 单词库</button>
   </div>
 
   <!-- GAME -->
@@ -561,15 +687,27 @@ body{
 
 <!-- RESULT OVERLAY -->
 <div class="result-overlay" id="resultOverlay">
-  <div class="result-box">
+  <div class="result-box scrollable">
     <div class="big-emoji" id="resultEmoji">🎉</div>
     <h2 id="resultTitle">太棒了！</h2>
     <div class="score-final">⭐ <span id="resultScore">0</span></div>
     <div class="stats" id="resultStats"></div>
+    <div class="word-summary" id="wordSummary"></div>
     <div class="btn-group">
       <button class="btn-retry" onclick="retryGame()">🔄 再来一轮</button>
       <button class="btn-menu" onclick="backToMenu()">🏠 返回菜单</button>
     </div>
+  </div>
+</div>
+
+<!-- WORD BANK OVERLAY -->
+<div class="wordbank-overlay" id="wordBankOverlay">
+  <div class="wordbank-box">
+    <h2>📚 我的单词库</h2>
+    <div class="sub">玩过的单词都在这里，随时复习</div>
+    <input type="text" class="wordbank-search" id="wordBankSearch" placeholder="🔍 搜索单词..." oninput="filterWordBank()">
+    <div class="wordbank-list" id="wordBankList"></div>
+    <button class="wordbank-close" onclick="closeWordBank()">收起</button>
   </div>
 </div>
 
@@ -1091,11 +1229,69 @@ function checkSpell(){
 }
 
 // ==========================================
+// WORD BANK
+// ==========================================
+function getWordBank(){
+  try{
+    return JSON.parse(localStorage.getItem('wordQuestBank') || '[]');
+  }catch(e){return []}
+}
+
+function saveWordsToBank(words){
+  let bank = getWordBank();
+  const wordSet = new Set(bank.map(w => w.word));
+  words.forEach(w => {
+    if(!wordSet.has(w.word)){
+      bank.push({word:w.word, meaning:w.meaning, sentence:w.sentence, translation:w.translation});
+      wordSet.add(w.word);
+    }
+  });
+  localStorage.setItem('wordQuestBank', JSON.stringify(bank));
+}
+
+function openWordBank(){
+  document.getElementById('wordBankOverlay').classList.add('active');
+  document.getElementById('wordBankSearch').value = '';
+  renderWordBank();
+}
+
+function closeWordBank(){
+  document.getElementById('wordBankOverlay').classList.remove('active');
+}
+
+function renderWordBank(filter){
+  const list = document.getElementById('wordBankList');
+  let bank = getWordBank();
+  
+  if(filter){
+    const kw = filter.toLowerCase();
+    bank = bank.filter(w => w.word.toLowerCase().includes(kw) || w.meaning.includes(kw));
+  }
+  
+  if(bank.length === 0){
+    list.innerHTML = '<div class="wordbank-empty">📭 还没有学过的单词<br><span style="font-size:0.8rem;color:#ddd">玩完一轮就会自动收录到这里</span></div>';
+    return;
+  }
+  
+  list.innerHTML = bank.map(w =>
+    `<div class="wordbank-item"><span class="tag">✓</span><span class="wen">${w.word}</span><span class="wzh">${w.meaning}</span><span class="wex">${w.sentence || ''}</span></div>`
+  ).join('');
+}
+
+function filterWordBank(){
+  const kw = document.getElementById('wordBankSearch').value;
+  renderWordBank(kw);
+}
+
+// ==========================================
 // RESULT
 // ==========================================
 function showResult(){
   const overlay = document.getElementById('resultOverlay');
   overlay.classList.add('active');
+  
+  // Save words to bank
+  saveWordsToBank(STATE.words);
   
   document.getElementById('resultScore').textContent = STATE.score;
   
@@ -1123,6 +1319,13 @@ function showResult(){
     正确率: ${pct}%<br>
     最高连击: 🔥 ${STATE.bestStreak}
   `;
+  
+  // Word summary
+  const summaryDiv = document.getElementById('wordSummary');
+  summaryDiv.innerHTML = '<h3>📖 本轮单词</h3>' +
+    STATE.words.map(w =>
+      `<div class="summary-item"><span class="en">${w.word}</span><span class="zh">${w.meaning}</span><span class="ex">${w.sentence}</span></div>`
+    ).join('');
 }
 
 function retryGame(){
@@ -1145,12 +1348,18 @@ function backToMenu(){
 // ===== KEYBOARD SHORTCUT =====
 document.addEventListener('keydown', e=>{
   if(e.key === 'Escape'){
-    if(document.getElementById('resultOverlay').classList.contains('active')){
+    if(document.getElementById('wordBankOverlay').classList.contains('active')){
+      closeWordBank();
+    } else if(document.getElementById('resultOverlay').classList.contains('active')){
       backToMenu();
     } else if(document.getElementById('gameScreen').classList.contains('active')){
       if(confirm('确定要退出吗？当前进度会丢失哦！')) backToMenu();
     }
   }
+});
+
+document.getElementById('wordBankOverlay').addEventListener('click', e=>{
+  if(e.target === e.currentTarget) closeWordBank();
 });
 
 console.log('🎮 Word Quest loaded! 共 ' + WORD_DATA.length + ' 个单词');
