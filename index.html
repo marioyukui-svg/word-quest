@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Quest · 单词大冒险</title>
+<script src="words.js"></script>
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{
+  font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, #fce4ec 0%, #e8f5e9 50%, #fff3e0 100%);
+  min-height: 100vh;
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* ===== HEADER ===== */
+.app-header{
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 16px 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.4);
+  position: relative;
+  z-index: 10;
+}
+.app-header h1{
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+.app-header h1 span{color: #ffe082}
+.app-header p{
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+/* ===== CONTAINER ===== */
+.container{
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* ===== SETUP PANEL ===== */
+.setup-panel{
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 24px;
+  margin-top: 16px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.06);
+  display: none;
+}
+.setup-panel.active{display:block}
+.setup-panel h2{
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+  color: #5c6bc0;
+}
+.setup-panel label{
+  display: block;
+  font-weight: 600;
+  margin: 14px 0 6px;
+  font-size: 0.9rem;
+  color: #555;
+}
+.setup-panel select,.setup-panel input[type="number"]{
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background: #fafafa;
+}
+.setup-panel select:focus,.setup-panel input:focus{
+  outline: none;
+  border-color: #7c4dff;
+  background: #fff;
+}
+.btn-start{
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  color: #1b5e20;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 15px rgba(67,233,123,0.4);
+}
+.btn-start:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(67,233,123,0.5);
+}
+.btn-start:active{transform: translateY(0)}
+
+/* ===== GAME SCREEN ===== */
+.game-screen{display:none}
+.game-screen.active{display:block}
+
+/* Top bar */
+.game-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.game-top .score{
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #7c4dff;
+}
+.game-top .streak{
+  font-size: 0.9rem;
+  color: #ff6f00;
+}
+.game-top .progress-text{
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* Progress bar */
+.progress-bar{
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.progress-bar .fill{
+  height: 100%;
+  background: linear-gradient(90deg, #43e97b, #38f9d7);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ===== MODE: MEMORY MATCH ===== */
+.memory-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+}
+.memory-card{
+  aspect-ratio: 3/4;
+  background: linear-gradient(145deg, #7c4dff, #651fff);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 12px rgba(124,77,255,0.25);
+  padding: 6px;
+  text-align: center;
+  word-break: break-word;
+  user-select: none;
+  position: relative;
+}
+.memory-card.flipped{
+  transform: rotateY(180deg);
+}
+.memory-card.matched{
+  background: linear-gradient(145deg, #43e97b, #38f9d7);
+  color: #1b5e20;
+  transform: scale(0.95);
+  opacity: 0.7;
+  cursor: default;
+  pointer-events: none;
+}
+.memory-card .card-back{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  backface-visibility: hidden;
+}
+.memory-card .card-front{
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+}
+.memory-stats{
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 0.9rem;
+  color: #666;
+  margin: 8px 0;
+}
+
+/* ===== MODE: WORD RUSH ===== */
+.quiz-card{
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.06);
+  margin: 16px 0;
+}
+.quiz-word{
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 6px;
+}
+.quiz-hint{
+  font-size: 0.9rem;
+  color: #999;
+  margin-bottom: 20px;
+}
+.quiz-options{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.quiz-btn{
+  padding: 14px 10px;
+  border: 2px solid #e0e0e0;
+  background: #fafafa;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #333;
+}
+.quiz-btn:hover{
+  border-color: #7c4dff;
+  background: #f3e5ff;
+}
+.quiz-btn.correct{
+  border-color: #43e97b;
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+.quiz-btn.wrong{
+  border-color: #ef5350;
+  background: #ffebee;
+  color: #c62828;
+}
+.quiz-btn:disabled{cursor: default; opacity: 0.7}
+.quiz-timer{
+  width: 100%;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.quiz-timer .bar{
+  height: 100%;
+  background: linear-gradient(90deg, #43e97b, #ffe082, #ef5350);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+  width: 100%;
+}
+
+/* ===== MODE: SPELLING BEE ===== */
+.spell-card{
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.06);
+  margin: 16px 0;
+}
+.spell-meaning{
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #7c4dff;
+  margin-bottom: 4px;
+}
+.spell-hint-sentence{
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.spell-input-wrap{
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.spell-input{
+  padding: 12px 18px;
+  border: 2px solid #e0e0e0;
+  border-radius: 14px;
+  font-size: 1.3rem;
+  text-align: center;
+  width: 280px;
+  max-width: 80%;
+  letter-spacing: 2px;
+  transition: border-color 0.2s;
+}
+.spell-input:focus{
+  outline: none;
+  border-color: #7c4dff;
+}
+.spell-submit{
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.spell-submit:hover{transform: scale(1.05)}
+.spell-hint-btn{
+  background: none;
+  border: 2px solid #ffe082;
+  color: #ff8f00;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+.spell-hint-btn:hover{background: #fff8e1}
+.spell-feedback{
+  margin-top: 12px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  min-height: 2rem;
+}
+
+/* ===== MODE SELECTOR ===== */
+.mode-selector{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.mode-btn{
+  padding: 16px 8px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.mode-btn:hover{
+  border-color: #7c4dff;
+  background: #f3e5ff;
+}
+.mode-btn.active{
+  border-color: #7c4dff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+.mode-btn .icon{font-size: 2rem; display: block; margin-bottom: 4px}
+.mode-btn .label{font-size: 0.8rem; font-weight: 600}
+
+/* ===== RESULT ===== */
+.result-overlay{
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.result-overlay.active{display:flex}
+.result-box{
+  background: #fff;
+  border-radius: 24px;
+  padding: 36px 32px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: popIn 0.3s ease;
+}
+@keyframes popIn{
+  0%{transform:scale(0.8);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+.result-box .big-emoji{font-size: 4rem; margin-bottom: 8px}
+.result-box h2{font-size: 1.5rem; margin-bottom: 8px}
+.result-box .stats{color: #666; font-size: 0.95rem; margin-bottom: 16px; line-height: 1.6}
+.result-box .score-final{font-size: 2rem; font-weight: 800; color: #7c4dff; margin: 8px 0}
+.result-box .btn-group{display: flex; gap: 10px; margin-top: 16px}
+.result-box .btn-group button{
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.result-box .btn-group button:hover{transform: scale(1.03)}
+.btn-retry{background: linear-gradient(135deg, #43e97b, #38f9d7); color: #1b5e20}
+.btn-menu{background: #e0e0e0; color: #555}
+
+/* ===== CONFETTI ===== */
+.confetti-container{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 101;
+  overflow: hidden;
+}
+.confetti-piece{
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -20px;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(0) rotate(0deg); opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg); opacity:0}
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+  .memory-grid{grid-template-columns: repeat(3, 1fr); gap: 8px}
+  .memory-card{font-size: 0.7rem}
+  .quiz-word{font-size: 1.8rem}
+  .quiz-options{grid-template-columns: 1fr 1fr}
+  .mode-selector{gap: 8px}
+  .mode-btn .icon{font-size: 1.5rem}
+}
+
+/* ===== TOAST ===== */
+.toast{
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #333;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 200;
+  pointer-events: none;
+}
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>🎮 Word Quest · <span>单词大冒险</span></h1>
+  <p>玩着玩着就记住了 ✨</p>
+</div>
+
+<div class="container">
+
+  <!-- SETUP -->
+  <div class="setup-panel active" id="setupPanel">
+    <h2>🎯 选择关卡</h2>
+    <label>游戏模式</label>
+    <div class="mode-selector">
+      <button class="mode-btn active" data-mode="memory" onclick="selectMode('memory')">
+        <span class="icon">🃏</span>
+        <span class="label">记忆配对</span>
+      </button>
+      <button class="mode-btn" data-mode="quiz" onclick="selectMode('quiz')">
+        <span class="icon">⚡</span>
+        <span class="label">极速抢答</span>
+      </button>
+      <button class="mode-btn" data-mode="spell" onclick="selectMode('spell')">
+        <span class="icon">✍️</span>
+        <span class="label">拼写达人</span>
+      </button>
+    </div>
+
+    <label>单词范围</label>
+    <select id="rangeSelect">
+      <option value="0-100">第 1-100 词（基础高频）</option>
+      <option value="100-200">第 101-200 词</option>
+      <option value="200-300">第 201-300 词</option>
+      <option value="300-400">第 301-400 词</option>
+      <option value="400-500">第 401-500 词</option>
+      <option value="500-600">第 501-600 词</option>
+      <option value="600-700">第 601-700 词</option>
+      <option value="700-898">第 701-898 词</option>
+      <option value="random">🎲 随机混搭</option>
+    </select>
+
+    <label>每轮单词数</label>
+    <input type="number" id="countInput" value="8" min="4" max="20">
+
+    <button class="btn-start" onclick="startGame()">🚀 开始冒险!</button>
+  </div>
+
+  <!-- GAME -->
+  <div class="game-screen" id="gameScreen">
+    <div class="game-top">
+      <div class="score">⭐ <span id="scoreDisplay">0</span></div>
+      <div class="streak" id="streakDisplay">🔥 连击 0</div>
+      <div class="progress-text"><span id="progressDisplay">0</span> / <span id="totalDisplay">8</span></div>
+    </div>
+    <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+
+    <div id="gameContent"></div>
+  </div>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-box">
+    <div class="big-emoji" id="resultEmoji">🎉</div>
+    <h2 id="resultTitle">太棒了！</h2>
+    <div class="score-final">⭐ <span id="resultScore">0</span></div>
+    <div class="stats" id="resultStats"></div>
+    <div class="btn-group">
+      <button class="btn-retry" onclick="retryGame()">🔄 再来一轮</button>
+      <button class="btn-menu" onclick="backToMenu()">🏠 返回菜单</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== GAME STATE =====
+let STATE = {
+  mode: 'memory',
+  words: [],
+  currentRound: [],
+  currentIndex: 0,
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  totalWords: 8,
+  roundComplete: false,
+  // Memory specific
+  memoryCards: [],
+  memoryFlipped: [],
+  memoryMatched: [],
+  memoryMoves: 0,
+  memoryLocked: false,
+  // Quiz specific
+  quizAnswered: false,
+  quizTimer: null,
+  quizTimeLeft: 10,
+  // Spelling specific
+  spellHintsUsed: 0,
+  spellRevealed: [],
+};
+
+// ===== MODE SELECTION =====
+function selectMode(mode){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
+  STATE.mode = mode;
+}
+
+// ===== WORD RANGE =====
+function getWordRange(){
+  const val = document.getElementById('rangeSelect').value;
+  if(val === 'random'){
+    // Pick a random range
+    const ranges = [[0,100],[100,200],[200,300],[300,400],[400,500],[500,600],[600,700],[700,898]];
+    const r = ranges[Math.floor(Math.random() * ranges.length)];
+    return r;
+  }
+  return val.split('-').map(Number);
+}
+
+function getWordRangeLabel(){
+  const sel = document.getElementById('rangeSelect');
+  return sel.options[sel.selectedIndex].text;
+}
+
+// ===== SOUND (Web Audio) =====
+let audioCtx = null;
+function playSound(type){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    gain.gain.value = 0.15;
+    
+    if(type === 'correct'){
+      osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(784, audioCtx.currentTime + 0.16);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.4);
+    } else if(type === 'wrong'){
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(200, audioCtx.currentTime + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.3);
+    } else if(type === 'flip'){
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.08);
+    } else if(type === 'complete'){
+      [523, 659, 784, 1047].forEach((freq,i)=>{
+        const o2 = audioCtx.createOscillator();
+        const g2 = audioCtx.createGain();
+        o2.connect(g2);
+        g2.connect(audioCtx.destination);
+        g2.gain.value = 0.12;
+        o2.frequency.value = freq;
+        g2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i*0.15 + 0.3);
+        o2.start(audioCtx.currentTime + i*0.15);
+        o2.stop(audioCtx.currentTime + i*0.15 + 0.3);
+      });
+    }
+  }catch(e){/* silent */}
+}
+
+// ===== CONFETTI =====
+function fireConfetti(count=40){
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bff','#ff9f43','#00d2d3'];
+  for(let i=0; i<count; i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random()*100 + '%';
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    piece.style.width = (6+Math.random()*8)+'px';
+    piece.style.height = (6+Math.random()*8)+'px';
+    piece.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (2+Math.random()*2)+'s';
+    piece.style.animationDelay = (Math.random()*0.8)+'s';
+    container.appendChild(piece);
+  }
+  setTimeout(()=>container.remove(), 5000);
+}
+
+// ===== TOAST =====
+let toastTimer = null;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ===== SHUFFLE =====
+function shuffle(arr){
+  for(let i=arr.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+// ===== START GAME =====
+function startGame(){
+  const [start, end] = getWordRange();
+  STATE.totalWords = parseInt(document.getElementById('countInput').value) || 8;
+  
+  // Pick words from range
+  const pool = WORD_DATA.slice(start, end);
+  if(pool.length < STATE.totalWords) STATE.totalWords = pool.length;
+  
+  STATE.words = shuffle([...pool]).slice(0, STATE.totalWords);
+  STATE.currentIndex = 0;
+  STATE.score = 0;
+  STATE.streak = 0;
+  STATE.bestStreak = 0;
+  STATE.roundComplete = false;
+  
+  document.getElementById('setupPanel').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  
+  renderGame();
+}
+
+function renderGame(){
+  const mode = STATE.mode;
+  if(mode === 'memory') renderMemory();
+  else if(mode === 'quiz') renderQuiz();
+  else if(mode === 'spell') renderSpell();
+  updateScoreboard();
+}
+
+function updateScoreboard(){
+  document.getElementById('scoreDisplay').textContent = STATE.score;
+  document.getElementById('streakDisplay').textContent = '🔥 连击 ' + STATE.streak;
+  document.getElementById('progressDisplay').textContent = STATE.currentIndex;
+  document.getElementById('totalDisplay').textContent = STATE.totalWords;
+  const pct = STATE.totalWords > 0 ? (STATE.currentIndex / STATE.totalWords * 100) : 0;
+  document.getElementById('progressFill').style.width = Math.min(pct, 100) + '%';
+}
+
+// ==========================================
+// MODE 1: MEMORY MATCH
+// ==========================================
+function renderMemory(){
+  const words = STATE.words;
+  const pairs = [];
+  words.forEach(w=>{
+    pairs.push({type:'en', word:w.word, pairId:w.word});
+    pairs.push({type:'zh', word:w.meaning, pairId:w.word});
+  });
+  STATE.memoryCards = shuffle(pairs);
+  STATE.memoryFlipped = [];
+  STATE.memoryMatched = [];
+  STATE.memoryMoves = 0;
+  STATE.memoryLocked = false;
+  
+  const content = document.getElementById('gameContent');
+  content.innerHTML = `
+    <div class="memory-stats">
+      <span>🃏 已配对: <span id="matchCount">0</span>/${STATE.totalWords}</span>
+      <span>👆 翻牌: <span id="moveCount">0</span></span>
+    </div>
+    <div class="memory-grid" id="memoryGrid"></div>
+  `;
+  
+  const grid = document.getElementById('memoryGrid');
+  STATE.memoryCards.forEach((card,i)=>{
+    const div = document.createElement('div');
+    div.className = 'memory-card';
+    div.dataset.index = i;
+    div.innerHTML = `
+      <div class="card-back">❓</div>
+      <div class="card-front">${card.type==='en' ? card.word : card.word}</div>
+    `;
+    div.addEventListener('click',()=>flipCard(i));
+    grid.appendChild(div);
+  });
+}
+
+function flipCard(index){
+  if(STATE.memoryLocked) return;
+  if(STATE.memoryFlipped.includes(index)) return;
+  if(STATE.memoryMatched.includes(index)) return;
+  if(STATE.memoryFlipped.length >= 2) return;
+  
+  playSound('flip');
+  STATE.memoryFlipped.push(index);
+  const card = document.querySelectorAll('.memory-card')[index];
+  card.classList.add('flipped');
+  
+  if(STATE.memoryFlipped.length === 2){
+    STATE.memoryLocked = true;
+    STATE.memoryMoves++;
+    document.getElementById('moveCount').textContent = STATE.memoryMoves;
+    checkMatch();
+  }
+}
+
+function checkMatch(){
+  const [i, j] = STATE.memoryFlipped;
+  const card1 = STATE.memoryCards[i];
+  const card2 = STATE.memoryCards[j];
+  
+  if(card1.pairId === card2.pairId && card1.type !== card2.type){
+    // Match!
+    STATE.memoryMatched.push(i, j);
+    const els = document.querySelectorAll('.memory-card');
+    els[i].classList.add('matched');
+    els[j].classList.add('matched');
+    
+    STATE.score += 10 + Math.min(STATE.streak * 2, 20);
+    STATE.streak++;
+    if(STATE.streak > STATE.bestStreak) STATE.bestStreak = STATE.streak;
+    STATE.currentIndex++;
+    updateScoreboard();
+    document.getElementById('matchCount').textContent = STATE.memoryMatched.length/2;
+    
+    playSound('correct');
+    
+    if(STATE.memoryMatched.length === STATE.memoryCards.length){
+      // All matched!
+      setTimeout(()=>showResult(), 600);
+    }
+    
+    STATE.memoryFlipped = [];
+    STATE.memoryLocked = false;
+  } else {
+    // No match
+    STATE.streak = 0;
+    updateScoreboard();
+    playSound('wrong');
+    
+    setTimeout(()=>{
+      const els = document.querySelectorAll('.memory-card');
+      els[i].classList.remove('flipped');
+      els[j].classList.remove('flipped');
+      STATE.memoryFlipped = [];
+      STATE.memoryLocked = false;
+    }, 800);
+  }
+}
+
+// ==========================================
+// MODE 2: WORD RUSH (Quiz)
+// ==========================================
+function renderQuiz(){
+  if(STATE.currentIndex >= STATE.totalWords){
+    showResult();
+    return;
+  }
+  
+  const word = STATE.words[STATE.currentIndex];
+  STATE.quizAnswered = false;
+  
+  // Generate 4 options: 1 correct + 3 distractors
+  let options = [word.meaning];
+  const pool = shuffle([...WORD_DATA]);
+  for(let w of pool){
+    if(options.length >= 4) break;
+    if(!options.includes(w.meaning) && w.meaning) options.push(w.meaning);
+  }
+  options = shuffle(options);
+  
+  const content = document.getElementById('gameContent');
+  content.innerHTML = `
+    <div class="quiz-card">
+      <div class="quiz-word">${word.word}</div>
+      <div class="quiz-hint">${word.sentence}</div>
+      <div class="quiz-timer"><div class="bar" id="quizTimerBar"></div></div>
+      <div class="quiz-options" id="quizOptions">
+        ${options.map((opt,i)=>`
+          <button class="quiz-btn" data-index="${i}" data-correct="${opt===word.meaning?'true':'false'}">
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  // Add click handlers
+  document.querySelectorAll('.quiz-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>answerQuiz(btn, word));
+  });
+  
+  // Timer
+  STATE.quizTimeLeft = 10;
+  const bar = document.getElementById('quizTimerBar');
+  bar.style.width = '100%';
+  
+  if(STATE.quizTimer) clearInterval(STATE.quizTimer);
+  STATE.quizTimer = setInterval(()=>{
+    STATE.quizTimeLeft -= 0.1;
+    bar.style.width = Math.max(0, (STATE.quizTimeLeft/10)*100) + '%';
+    if(STATE.quizTimeLeft <= 0){
+      clearInterval(STATE.quizTimer);
+      if(!STATE.quizAnswered){
+        STATE.quizAnswered = true;
+        STATE.streak = 0;
+        updateScoreboard();
+        playSound('wrong');
+        // Highlight correct answer
+        document.querySelectorAll('.quiz-btn').forEach(b=>{
+          b.disabled = true;
+          if(b.dataset.correct === 'true') b.classList.add('correct');
+        });
+        setTimeout(()=>{
+          STATE.currentIndex++;
+          renderGame();
+        }, 1200);
+      }
+    }
+  }, 100);
+}
+
+function answerQuiz(btn, word){
+  if(STATE.quizAnswered) return;
+  STATE.quizAnswered = true;
+  clearInterval(STATE.quizTimer);
+  
+  const isCorrect = btn.dataset.correct === 'true';
+  document.querySelectorAll('.quiz-btn').forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.correct === 'true') b.classList.add('correct');
+  });
+  
+  if(isCorrect){
+    btn.classList.add('correct');
+    const timeBonus = Math.floor(STATE.quizTimeLeft);
+    STATE.score += 10 + timeBonus + Math.min(STATE.streak * 2, 10);
+    STATE.streak++;
+    if(STATE.streak > STATE.bestStreak) STATE.bestStreak = STATE.streak;
+    playSound('correct');
+  } else {
+    btn.classList.add('wrong');
+    STATE.streak = 0;
+    playSound('wrong');
+  }
+  updateScoreboard();
+  
+  setTimeout(()=>{
+    STATE.currentIndex++;
+    renderGame();
+  }, 1000);
+}
+
+// ==========================================
+// MODE 3: SPELLING BEE
+// ==========================================
+function renderSpell(){
+  if(STATE.currentIndex >= STATE.totalWords){
+    showResult();
+    return;
+  }
+  
+  const word = STATE.words[STATE.currentIndex];
+  STATE.spellHintsUsed = 0;
+  STATE.spellRevealed = [];
+  
+  const content = document.getElementById('gameContent');
+  content.innerHTML = `
+    <div class="spell-card">
+      <div style="font-size:1rem;color:#999;margin-bottom:4px">请拼写这个单词</div>
+      <div class="spell-meaning">${word.meaning}</div>
+      <div class="spell-hint-sentence">💡 ${word.translation}</div>
+      <div class="spell-input-wrap">
+        <input type="text" class="spell-input" id="spellInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="输入英文单词...">
+        <button class="spell-submit" onclick="checkSpell()">✓</button>
+      </div>
+      <div>
+        <button class="spell-hint-btn" onclick="giveSpellHint()">💡 提示 (第${STATE.spellHintsUsed+1}个字母)</button>
+      </div>
+      <div class="spell-feedback" id="spellFeedback"></div>
+      <div style="font-size:0.8rem;color:#bbb;margin-top:8px">字母数: ${word.word.length}</div>
+    </div>
+  `;
+  
+  document.getElementById('spellInput').focus();
+  document.getElementById('spellInput').addEventListener('keydown', e=>{
+    if(e.key === 'Enter') checkSpell();
+  });
+}
+
+function giveSpellHint(){
+  const word = STATE.words[STATE.currentIndex];
+  const input = document.getElementById('spellInput');
+  const pos = STATE.spellHintsUsed;
+  if(pos >= word.word.length) return;
+  
+  STATE.spellHintsUsed++;
+  STATE.spellRevealed.push(pos);
+  
+  // Show the revealed letter in the feedback area
+  const fb = document.getElementById('spellFeedback');
+  let hintStr = '';
+  for(let i=0; i<word.word.length; i++){
+    if(STATE.spellRevealed.includes(i)){
+      hintStr += word.word[i].toUpperCase() + ' ';
+    } else {
+      hintStr += '_ ';
+    }
+  }
+  fb.innerHTML = '🔍 ' + hintStr;
+  fb.style.color = '#ff8f00';
+  
+  if(STATE.spellHintsUsed >= word.word.length){
+    // Revealed all - show answer and move on
+    setTimeout(()=>{
+      STATE.streak = 0;
+      STATE.currentIndex++;
+      updateScoreboard();
+      renderGame();
+    }, 1500);
+  }
+  
+  document.querySelector('.spell-hint-btn').textContent = `💡 提示 (第${STATE.spellHintsUsed+1}个字母)`;
+  input.focus();
+}
+
+function checkSpell(){
+  if(STATE.roundComplete) return;
+  
+  const word = STATE.words[STATE.currentIndex];
+  const input = document.getElementById('spellInput');
+  const answer = input.value.trim().toLowerCase();
+  const correct = word.word.toLowerCase();
+  const fb = document.getElementById('spellFeedback');
+  
+  if(answer === correct){
+    STATE.roundComplete = true;
+    // Score: base 20 - hints penalty
+    const penalty = STATE.spellHintsUsed * 3;
+    const scoreAdd = Math.max(5, 20 - penalty) + Math.min(STATE.streak * 2, 10);
+    STATE.score += scoreAdd;
+    STATE.streak++;
+    if(STATE.streak > STATE.bestStreak) STATE.bestStreak = STATE.streak;
+    updateScoreboard();
+    playSound('correct');
+    fb.innerHTML = '✅ 完美！ +' + scoreAdd + ' 分';
+    fb.style.color = '#43e97b';
+    input.disabled = true;
+    
+    setTimeout(()=>{
+      STATE.currentIndex++;
+      STATE.roundComplete = false;
+      renderGame();
+    }, 1200);
+  } else {
+    STATE.streak = 0;
+    updateScoreboard();
+    playSound('wrong');
+    fb.innerHTML = '❌ 再试试...';
+    fb.style.color = '#ef5350';
+    input.value = '';
+    setTimeout(()=>{
+      fb.innerHTML = '';
+      document.getElementById('spellInput').focus();
+    }, 800);
+  }
+}
+
+// ==========================================
+// RESULT
+// ==========================================
+function showResult(){
+  const overlay = document.getElementById('resultOverlay');
+  overlay.classList.add('active');
+  
+  document.getElementById('resultScore').textContent = STATE.score;
+  
+  const total = STATE.totalWords;
+  const pct = total > 0 ? Math.round(STATE.score / (total * 20) * 100) : 0;
+  
+  let emoji, title;
+  if(pct >= 90){
+    emoji = '🏆'; title = '超级词霸！';
+    playSound('complete');
+    fireConfetti(60);
+  } else if(pct >= 70){
+    emoji = '🌟'; title = '太棒了！';
+    fireConfetti(30);
+  } else if(pct >= 50){
+    emoji = '👍'; title = '继续加油！';
+  } else {
+    emoji = '💪'; title = '再试一次！';
+  }
+  
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultStats').innerHTML = `
+    得分: ${STATE.score} 分<br>
+    正确率: ${pct}%<br>
+    最高连击: 🔥 ${STATE.bestStreak}
+  `;
+}
+
+function retryGame(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  STATE.currentIndex = 0;
+  STATE.score = 0;
+  STATE.streak = 0;
+  STATE.bestStreak = 0;
+  STATE.roundComplete = false;
+  renderGame();
+}
+
+function backToMenu(){
+  document.getElementById('resultOverlay').classList.remove('active');
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('setupPanel').classList.add('active');
+  if(STATE.quizTimer) clearInterval(STATE.quizTimer);
+}
+
+// ===== KEYBOARD SHORTCUT =====
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){
+    if(document.getElementById('resultOverlay').classList.contains('active')){
+      backToMenu();
+    } else if(document.getElementById('gameScreen').classList.contains('active')){
+      if(confirm('确定要退出吗？当前进度会丢失哦！')) backToMenu();
+    }
+  }
+});
+
+console.log('🎮 Word Quest loaded! 共 ' + WORD_DATA.length + ' 个单词');
+console.log('🚀 点击"开始冒险"开始游戏！');
+</script>
+</body>
+</html>
