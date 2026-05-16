@@ -167,16 +167,23 @@ body{
   perspective: 800px;
   transform-style: preserve-3d;
 }
+.memory-card.previewing{
+  transform: rotateY(180deg);
+  cursor: default;
+  pointer-events: none;
+}
 .memory-card.flipped{
   transform: rotateY(180deg);
 }
 .memory-card.matched{
-  background: linear-gradient(145deg, #43e97b, #38f9d7);
-  color: #1b5e20;
-  transform: scale(0.95);
-  opacity: 0.7;
+  transform: rotateY(180deg) scale(0.95);
   cursor: default;
   pointer-events: none;
+}
+.memory-card.matched .card-face.card-front{
+  background: linear-gradient(145deg, #c8e6c9, #a5d6a7);
+  color: #1b5e20;
+  border: 2px solid #43e97b;
 }
 .memory-card .card-face{
   position: absolute;
@@ -210,6 +217,20 @@ body{
   font-size: 0.9rem;
   color: #666;
   margin: 8px 0;
+}
+.memory-preview-banner{
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #7c4dff;
+  padding: 10px;
+  background: #f3e5ff;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  animation: pulse 0.8s ease infinite alternate;
+}
+@keyframes pulse{
+  0%{transform:scale(1)}100%{transform:scale(1.04)}
 }
 
 /* ===== MODE: WORD RUSH ===== */
@@ -744,10 +765,11 @@ function renderMemory(){
   STATE.memoryFlipped = [];
   STATE.memoryMatched = [];
   STATE.memoryMoves = 0;
-  STATE.memoryLocked = false;
+  STATE.memoryLocked = true;
   
   const content = document.getElementById('gameContent');
   content.innerHTML = `
+    <div class="memory-preview-banner" id="previewBanner">👀 记住这些单词的位置！<span id="previewCountdown">3</span></div>
     <div class="memory-stats">
       <span>🃏 已配对: <span id="matchCount">0</span>/${STATE.totalWords}</span>
       <span>👆 翻牌: <span id="moveCount">0</span></span>
@@ -758,7 +780,7 @@ function renderMemory(){
   const grid = document.getElementById('memoryGrid');
   STATE.memoryCards.forEach((card,i)=>{
     const div = document.createElement('div');
-    div.className = 'memory-card';
+    div.className = 'memory-card previewing';
     div.dataset.index = i;
     div.innerHTML = `
       <div class="card-face card-back">❓</div>
@@ -767,6 +789,24 @@ function renderMemory(){
     div.addEventListener('click',()=>flipCard(i));
     grid.appendChild(div);
   });
+  
+  // 3-second preview countdown
+  let count = 3;
+  const cd = document.getElementById('previewCountdown');
+  const timer = setInterval(()=>{
+    count--;
+    if(cd) cd.textContent = count;
+    if(count <= 0){
+      clearInterval(timer);
+      const banner = document.getElementById('previewBanner');
+      if(banner) banner.remove();
+      // Flip all cards back and unlock
+      document.querySelectorAll('.memory-card').forEach(c=>{
+        c.classList.remove('previewing');
+      });
+      STATE.memoryLocked = false;
+    }
+  }, 1000);
 }
 
 function flipCard(index){
