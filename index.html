@@ -571,6 +571,198 @@ body{
 }
 .wordbank-close:hover{transform:scale(1.02)}
 
+/* ===== 错题本 ===== */
+.wrongword-overlay{
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 91;
+  align-items: center;
+  justify-content: center;
+}
+.wrongword-overlay.active{display:flex}
+.wrongword-box{
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  max-width: 500px;
+  width: 92%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: popIn 0.3s ease;
+}
+.wrongword-box h2{
+  font-size: 1.3rem;
+  color: #ef5350;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.wrongword-box .sub{
+  font-size: 0.8rem;
+  color: #999;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.wrongword-list{
+  flex:1;
+  overflow-y:auto;
+  min-height:100px;
+}
+.wrongword-empty{
+  text-align: center;
+  color: #bbb;
+  padding: 40px 0;
+  font-size: 0.95rem;
+}
+.wrongword-item{
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+.wrongword-item:nth-child(even){background:#fff5f5}
+.wrongword-item .tag{
+  background: #ef5350;
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wrongword-item .wen{font-weight:700;color:#333;min-width:80px}
+.wrongword-item .wzh{color:#666;min-width:50px}
+.wrongword-close{
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #ef5350, #e53935);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.wrongword-close:hover{transform:scale(1.02)}
+.btn-retry-wrong{
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #ff8f00, #ff6f00);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.btn-retry-wrong:hover{transform:scale(1.02)}
+.wrongword-item .count-badge{
+  background: #ffcdd2;
+  color: #c62828;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.wrongword-actions{
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.wrongword-actions button{
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.wrongword-actions button:hover{transform:scale(1.02)}
+.btn-clear-wrong{
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* ===== 提示后练习模式 ===== */
+.spell-practice-mode{
+  margin-top: 12px;
+  padding: 16px;
+  background: #fff8e1;
+  border-radius: 14px;
+  border: 2px solid #ffe082;
+}
+.spell-practice-mode .practice-title{
+  font-size: 0.85rem;
+  color: #ff8f00;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.spell-practice-mode .practice-input-wrap{
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.spell-practice-mode .practice-input{
+  padding: 10px 16px;
+  border: 2px solid #ffe082;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  text-align: center;
+  width: 240px;
+  max-width: 80%;
+  letter-spacing: 2px;
+}
+.spell-practice-mode .practice-input:focus{
+  outline: none;
+  border-color: #ff8f00;
+}
+.spell-practice-mode .practice-submit{
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #ff8f00, #ff6f00);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.spell-practice-mode .practice-feedback{
+  margin-top: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 1.5rem;
+}
+.spell-btn-next{
+  display: inline-block;
+  padding: 10px 24px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.spell-btn-next:hover{transform:scale(1.05)}
+
 /* ===== CONFETTI ===== */
 .confetti-container{
   position: fixed;
@@ -669,6 +861,7 @@ body{
 
     <button class="btn-start" onclick="startGame()">🚀 开始冒险!</button>
     <button class="btn-start" style="margin-top:10px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:1rem;box-shadow:0 4px 15px rgba(102,126,234,0.4)" onclick="openWordBank()">📚 单词库</button>
+    <button class="btn-start" style="margin-top:10px;background:linear-gradient(135deg,#ef5350,#e53935);color:#fff;font-size:1rem;box-shadow:0 4px 15px rgba(239,83,80,0.4)" onclick="openWrongWords()">📕 错题本</button>
   </div>
 
   <!-- GAME -->
@@ -711,6 +904,20 @@ body{
   </div>
 </div>
 
+<!-- 错题本 -->
+<div class="wrongword-overlay" id="wrongWordOverlay">
+  <div class="wrongword-box">
+    <h2>❌ 我的错题本</h2>
+    <div class="sub" id="wrongWordSub">拼写错误的单词会出现在这里</div>
+    <div class="wrongword-list" id="wrongWordList"></div>
+    <button class="btn-retry-wrong" onclick="retryWrongWords()" id="retryWrongBtn" style="display:none">🔄 重做错题</button>
+    <div class="wrongword-actions" id="wrongWordActions" style="display:none">
+      <button class="btn-clear-wrong" onclick="clearWrongWords()">🗑️ 清空错题本</button>
+    </div>
+    <button class="wrongword-close" onclick="closeWrongWords()">收起</button>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -739,6 +946,7 @@ let STATE = {
   // Spelling specific
   spellHintsUsed: 0,
   spellRevealed: [],
+  spellRevealedComplete: false,
 };
 
 // ===== MODE SELECTION =====
@@ -1125,6 +1333,7 @@ function renderSpell(){
   const word = STATE.words[STATE.currentIndex];
   STATE.spellHintsUsed = 0;
   STATE.spellRevealed = [];
+  STATE.spellRevealedComplete = false;
   
   const content = document.getElementById('gameContent');
   content.innerHTML = `
@@ -1173,17 +1382,75 @@ function giveSpellHint(){
   fb.style.color = '#ff8f00';
   
   if(STATE.spellHintsUsed >= word.word.length){
-    // Revealed all - show answer and move on
+    // All letters revealed — go into practice mode
+    STATE.spellRevealedComplete = true;
+    
+    // Hide the hint button
+    document.querySelector('.spell-hint-btn').style.display = 'none';
+    
+    // Disable the main spell input and submit
+    document.getElementById('spellInput').disabled = true;
+    document.querySelector('.spell-submit').disabled = true;
+    
+    // Show the complete word and practice area
+    const spellCard = document.querySelector('.spell-card');
+    const practiceDiv = document.createElement('div');
+    practiceDiv.className = 'spell-practice-mode';
+    practiceDiv.innerHTML = `
+      <div class="practice-title">📖 完整拼写：<strong style="font-size:1.3rem;color:#e65100">${word.word}</strong></div>
+      <div style="font-size:0.85rem;color:#999;margin-bottom:8px">现在自己练一遍吧 👇</div>
+      <div class="practice-input-wrap">
+        <input type="text" class="practice-input" id="practiceInput" placeholder="输入单词">
+        <button class="practice-submit" onclick="checkPractice()">✓</button>
+      </div>
+      <div class="practice-feedback" id="practiceFeedback"></div>
+      <button class="spell-btn-next" onclick="advanceAfterAllHints()">下一题 →</button>
+    `;
+    spellCard.appendChild(practiceDiv);
+    
     setTimeout(()=>{
-      STATE.streak = 0;
-      STATE.currentIndex++;
-      updateScoreboard();
-      renderGame();
-    }, 1500);
+      const pInput = document.getElementById('practiceInput');
+      if(pInput) pInput.focus();
+    }, 100);
+    
+    // Record this word as wrong (didn't spell on own)
+    addWrongWord(word);
+    return;
   }
   
   document.querySelector('.spell-hint-btn').textContent = `💡 提示 (第${STATE.spellHintsUsed+1}个字母)`;
   input.focus();
+}
+
+function checkPractice(){
+  const word = STATE.words[STATE.currentIndex];
+  const input = document.getElementById('practiceInput');
+  if(!input) return;
+  const answer = input.value.trim().toLowerCase();
+  const correct = word.word.toLowerCase();
+  const fb = document.getElementById('practiceFeedback');
+  
+  if(answer === correct){
+    fb.innerHTML = '✅ 对了！继续加油 💪';
+    fb.style.color = '#43e97b';
+    input.disabled = true;
+    input.style.borderColor = '#43e97b';
+    playSound('correct');
+  } else {
+    fb.innerHTML = '❌ 再想想... 答案是 <strong>' + word.word + '</strong>';
+    fb.style.color = '#ef5350';
+    input.value = '';
+    input.focus();
+    playSound('wrong');
+  }
+}
+
+function advanceAfterAllHints(){
+  STATE.streak = 0;
+  STATE.currentIndex++;
+  STATE.roundComplete = false;
+  updateScoreboard();
+  renderGame();
 }
 
 function checkSpell(){
@@ -1221,6 +1488,8 @@ function checkSpell(){
     fb.innerHTML = '❌ 再试试...';
     fb.style.color = '#ef5350';
     input.value = '';
+    // Track this word as wrong (only once per word attempt)
+    addWrongWord(word);
     setTimeout(()=>{
       fb.innerHTML = '';
       document.getElementById('spellInput').focus();
@@ -1282,6 +1551,133 @@ function filterWordBank(){
   const kw = document.getElementById('wordBankSearch').value;
   renderWordBank(kw);
 }
+
+// ==========================================
+// 错题本
+// ==========================================
+function getWrongWords(){
+  try{
+    return JSON.parse(localStorage.getItem('wordQuestWrong') || '[]');
+  }catch(e){return []}
+}
+
+function saveWrongWords(list){
+  localStorage.setItem('wordQuestWrong', JSON.stringify(list));
+}
+
+function addWrongWord(word){
+  if(!word || !word.word) return;
+  let list = getWrongWords();
+  const existing = list.find(w => w.word === word.word);
+  if(existing){
+    existing.count = (existing.count || 1) + 1;
+  } else {
+    list.push({
+      word: word.word,
+      meaning: word.meaning,
+      sentence: word.sentence,
+      translation: word.translation,
+      count: 1
+    });
+  }
+  saveWrongWords(list);
+  updateWrongWordBadge();
+}
+
+function removeWrongWord(wordStr){
+  let list = getWrongWords();
+  list = list.filter(w => w.word !== wordStr);
+  saveWrongWords(list);
+  renderWrongWords();
+  updateWrongWordBadge();
+}
+
+function clearWrongWords(){
+  if(!confirm('确定要清空错题本吗？')) return;
+  saveWrongWords([]);
+  renderWrongWords();
+  updateWrongWordBadge();
+  showToast('错题本已清空');
+}
+
+function updateWrongWordBadge(){
+  const list = getWrongWords();
+  // Update button text if exists
+  const btn = document.querySelector('button[onclick="openWrongWords()"]');
+  if(btn){
+    const count = list.length;
+    btn.innerHTML = count > 0 ? `📕 错题本 (${count})` : '📕 错题本';
+  }
+}
+
+function openWrongWords(){
+  document.getElementById('wrongWordOverlay').classList.add('active');
+  renderWrongWords();
+}
+
+function closeWrongWords(){
+  document.getElementById('wrongWordOverlay').classList.remove('active');
+}
+
+function renderWrongWords(){
+  const list = document.getElementById('wrongWordList');
+  const sub = document.getElementById('wrongWordSub');
+  const retryBtn = document.getElementById('retryWrongBtn');
+  const actions = document.getElementById('wrongWordActions');
+  let wrongs = getWrongWords();
+  
+  if(wrongs.length === 0){
+    list.innerHTML = '<div class="wrongword-empty">🎉 没有错题！<br><span style="font-size:0.8rem;color:#ddd">拼写出错的单词会自动收录到这里</span></div>';
+    sub.textContent = '目前没有错题，继续保持！';
+    retryBtn.style.display = 'none';
+    actions.style.display = 'none';
+    return;
+  }
+  
+  sub.textContent = '共 ' + wrongs.length + ' 个拼写错误，点击可移除单个错词';
+  retryBtn.style.display = 'block';
+  actions.style.display = 'flex';
+  
+  list.innerHTML = wrongs.map(w =>
+    `<div class="wrongword-item">
+      <span class="tag">✗</span>
+      <span class="wen">${w.word}</span>
+      <span class="wzh">${w.meaning}</span>
+      <span class="count-badge">错 ${w.count||1} 次</span>
+      <span style="margin-left:auto;cursor:pointer;color:#ef5350;font-size:0.8rem" onclick="removeWrongWord('${w.word}')">✕ 移除</span>
+    </div>`
+  ).join('');
+}
+
+function retryWrongWords(){
+  const wrongs = getWrongWords();
+  if(wrongs.length === 0){
+    showToast('没有错题需要复习');
+    return;
+  }
+  
+  // Close the wrong word overlay
+  closeWrongWords();
+  
+  // Start a spelling game with only the wrong words
+  STATE.mode = 'spell';
+  STATE.totalWords = wrongs.length;
+  STATE.words = shuffle([...wrongs]);
+  STATE.currentIndex = 0;
+  STATE.score = 0;
+  STATE.streak = 0;
+  STATE.bestStreak = 0;
+  STATE.roundComplete = false;
+  
+  document.getElementById('setupPanel').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  
+  showToast('📕 错题复习：共 ' + STATE.totalWords + ' 个单词');
+  renderGame();
+}
+
+// Call updateWrongWordBadge on load
+updateWrongWordBadge();
 
 // ==========================================
 // RESULT
@@ -1348,7 +1744,9 @@ function backToMenu(){
 // ===== KEYBOARD SHORTCUT =====
 document.addEventListener('keydown', e=>{
   if(e.key === 'Escape'){
-    if(document.getElementById('wordBankOverlay').classList.contains('active')){
+    if(document.getElementById('wrongWordOverlay').classList.contains('active')){
+      closeWrongWords();
+    } else if(document.getElementById('wordBankOverlay').classList.contains('active')){
       closeWordBank();
     } else if(document.getElementById('resultOverlay').classList.contains('active')){
       backToMenu();
@@ -1360,6 +1758,10 @@ document.addEventListener('keydown', e=>{
 
 document.getElementById('wordBankOverlay').addEventListener('click', e=>{
   if(e.target === e.currentTarget) closeWordBank();
+});
+
+document.getElementById('wrongWordOverlay').addEventListener('click', e=>{
+  if(e.target === e.currentTarget) closeWrongWords();
 });
 
 console.log('🎮 Word Quest loaded! 共 ' + WORD_DATA.length + ' 个单词');
